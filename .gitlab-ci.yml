@@ -12,7 +12,7 @@ cache:
 
 test_dev:
   stage: test
-  image: python:3.9
+  image: python:3.11
   before_script:
     - python -m venv venv
     - source venv/bin/activate
