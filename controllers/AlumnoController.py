@@ -124,6 +124,7 @@ def get_alumno_by_id(id):
 @jwt_required()
 @swag_from({
     'tags': ["Alumnos"],
+
     'security': [{'BearerAuth': []}],
     'consumes': ['application/json'],
     'parameters': [
@@ -173,7 +174,10 @@ def update_alumno(id):
 @jwt_required()
 @swag_from({
     'tags': ["Alumnos"],
+<<<<<<< HEAD
     'security': [{'BearerAuth': []}],
+=======
+>>>>>>> 1806d9d17eb9cc09e406ac8eba99297eeee751b1
     'parameters': [
         {
             'name': 'id',
