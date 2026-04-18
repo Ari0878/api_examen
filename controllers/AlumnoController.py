@@ -5,15 +5,13 @@ from flasgger import swag_from
 
 alumno_bp = Blueprint('alumnos', __name__)
 
-# Token para POST, PUT; DELETE
+# 🔐 SOLO protegemos las rutas que modifican datos
+
 @alumno_bp.route('', methods=['POST'])
+@jwt_required()
 @swag_from({
     'tags': ["Alumnos"],
-            'security': [
-        {
-            'BearerAuth': []
-        }
-    ],
+    'security': [{'BearerAuth': []}],
     'consumes': ['application/json'],
     'parameters': [
         {
@@ -46,11 +44,13 @@ def create_alumno():
 
     result = AlumnoService.create(data)
 
-    if "error" in result:
+    if isinstance(result, dict) and "error" in result:
         return jsonify(result), 400
 
     return jsonify(result), 201
 
+
+# 🔓 GET sin token
 @alumno_bp.route('', methods=['GET'])
 @swag_from({
     'tags': ["Alumnos"],
@@ -93,6 +93,7 @@ def get_all_alumnos():
     result = AlumnoService.get_all()
     return jsonify(result), 200
 
+
 @alumno_bp.route('/<int:id>', methods=['GET'])
 @swag_from({
     'tags': ["Alumnos"],
@@ -112,15 +113,18 @@ def get_all_alumnos():
 def get_alumno_by_id(id):
     result = AlumnoService.get_by_id(id)
 
-    if "error" in result:
+    if isinstance(result, dict) and "error" in result:
         return jsonify(result), 404
 
     return jsonify(result), 200
 
 
+# 🔐 PROTEGIDO
 @alumno_bp.route('/<int:id>', methods=['PUT'])
+@jwt_required()
 @swag_from({
     'tags': ["Alumnos"],
+    'security': [{'BearerAuth': []}],
     'consumes': ['application/json'],
     'parameters': [
         {
@@ -158,15 +162,18 @@ def update_alumno(id):
 
     result = AlumnoService.update(id, data)
 
-    if "error" in result:
+    if isinstance(result, dict) and "error" in result:
         return jsonify(result), 404
 
     return jsonify(result), 200
 
 
+# 🔐 PROTEGIDO
 @alumno_bp.route('/<int:id>', methods=['DELETE'])
+@jwt_required()
 @swag_from({
     'tags': ["Alumnos"],
+    'security': [{'BearerAuth': []}],
     'parameters': [
         {
             'name': 'id',
@@ -183,9 +190,7 @@ def update_alumno(id):
 def delete_alumno(id):
     result = AlumnoService.delete(id)
 
-    if "error" in result:
+    if isinstance(result, dict) and "error" in result:
         return jsonify(result), 404
 
     return jsonify({"message": "Alumno eliminado correctamente"}), 200
-
-
