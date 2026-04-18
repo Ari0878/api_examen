@@ -121,6 +121,11 @@ def get_alumno_by_id(id):
 @alumno_bp.route('/<int:id>', methods=['PUT'])
 @swag_from({
     'tags': ["Alumnos"],
+                'security': [
+        {
+            'BearerAuth': []
+        }
+    ],
         'security': [
         {
             'BearerAuth': []
