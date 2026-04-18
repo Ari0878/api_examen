@@ -1,0 +1,60 @@
+stages:
+  - test
+  - deploy
+
+variables:
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+
+cache:
+  paths:
+    - .cache/pip
+    - venv/
+
+test_dev:
+  stage: test
+  image: python:3.9
+  before_script:
+    - python -m venv venv
+    - source venv/bin/activate
+    - pip install -r requirements.txt
+  script:
+    - echo "Running tests for dev environment"
+    # Add actual test commands here, e.g., python -m pytest
+  only:
+    - develop
+
+deploy_dev:
+  stage: deploy
+  script:
+    - echo "Deploying to dev environment"
+    # Add deployment commands here, e.g., deploy to dev server
+  environment:
+    name: dev
+    url: http://dev.example.com
+  only:
+    - develop
+
+test_prod:
+  stage: test
+  image: python:3.9
+  before_script:
+    - python -m venv venv
+    - source venv/bin/activate
+    - pip install -r requirements.txt
+  script:
+    - echo "Running tests for prod environment"
+    # Add actual test commands here
+  only:
+    - main
+
+deploy_prod:
+  stage: deploy
+  script:
+    - echo "Deploying to prod environment"
+    # Add deployment commands here, e.g., deploy to prod server
+  environment:
+    name: prod
+    url: http://prod.example.com
+  only:
+    - main
+  when: manual  # Optional: make prod deploy manual
