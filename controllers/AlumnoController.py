@@ -121,16 +121,6 @@ def get_alumno_by_id(id):
 @alumno_bp.route('/<int:id>', methods=['PUT'])
 @swag_from({
     'tags': ["Alumnos"],
-                'security': [
-        {
-            'BearerAuth': []
-        }
-    ],
-        'security': [
-        {
-            'BearerAuth': []
-        }
-    ],
     'consumes': ['application/json'],
     'parameters': [
         {
@@ -160,7 +150,6 @@ def get_alumno_by_id(id):
         404: {'description': 'Alumno no encontrado'}
     }
 })
-@jwt_required()
 def update_alumno(id):
     data = request.get_json()
 
@@ -178,11 +167,6 @@ def update_alumno(id):
 @alumno_bp.route('/<int:id>', methods=['DELETE'])
 @swag_from({
     'tags': ["Alumnos"],
-        'security': [
-        {
-            'BearerAuth': []
-        }
-    ],
     'parameters': [
         {
             'name': 'id',
@@ -196,7 +180,6 @@ def update_alumno(id):
         404: {'description': 'Alumno no encontrado'}
     }
 })
-@jwt_required()
 def delete_alumno(id):
     result = AlumnoService.delete(id)
 
