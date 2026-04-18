@@ -17,8 +17,8 @@ def create_app():
     from models.user import User
     from models.alumnos import Alumno
 
-    app.register_blueprint(auth_bp)
-    app.register_blueprint(alumno_bp)
+    app.register_blueprint(auth_bp, url_prefix='/auth')
+    app.register_blueprint(alumno_bp, url_prefix='/alumnos')
 
     return app
 

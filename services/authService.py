@@ -1,4 +1,5 @@
 from repository.userRepository import UserRepository
+from flask_jwt_extended import create_access_token
 
 class authService:
 
@@ -21,4 +22,11 @@ class authService:
         if not user.check_password(password):
             return None
 
-        return user.to_dict()
+        access_token = create_access_token(identity=user.id)
+        if isinstance(access_token, bytes):
+            access_token = access_token.decode('utf-8')
+
+        return {
+            'access_token': access_token,
+            'user': user.to_dict()
+        }

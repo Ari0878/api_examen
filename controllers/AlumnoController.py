@@ -1,13 +1,19 @@
 from services.alumnoService import AlumnoService
 from flask import Blueprint, jsonify, request
+from flask_jwt_extended import jwt_required
 from flasgger import swag_from
 
-alumno_bp = Blueprint('alumnos', __name__, url_prefix='/api/alumnos')
+alumno_bp = Blueprint('alumnos', __name__)
 
-
+# Token para POST, PUT; DELETE
 @alumno_bp.route('', methods=['POST'])
 @swag_from({
     'tags': ["Alumnos"],
+            'security': [
+        {
+            'BearerAuth': []
+        }
+    ],
     'consumes': ['application/json'],
     'parameters': [
         {
@@ -45,7 +51,47 @@ def create_alumno():
 
     return jsonify(result), 201
 
+@alumno_bp.route('', methods=['GET'])
+@swag_from({
+    'tags': ["Alumnos"],
+    'parameters': [
+        {
+            'name': 'fecha_inicio',
+            'in': 'query',
+            'type': 'string',
+            'required': False,
+            'description': 'Fecha de inicio en formato YYYY-MM-DD'
+        },
+        {
+            'name': 'fecha_fin',
+            'in': 'query',
+            'type': 'string',
+            'required': False,
+            'description': 'Fecha de fin en formato YYYY-MM-DD'
+        }
+    ],
+    'responses': {
+        200: {'description': 'Lista de alumnos'},
+        400: {'description': 'Error en fechas'}
+    }
+})
+def get_all_alumnos():
+    fecha_inicio = request.args.get('fecha_inicio')
+    fecha_fin = request.args.get('fecha_fin')
 
+    if fecha_inicio or fecha_fin:
+        if not fecha_inicio or not fecha_fin:
+            return jsonify({"message": "Se requieren fecha_inicio y fecha_fin"}), 400
+
+        result = AlumnoService.get_by_fecha_range(fecha_inicio, fecha_fin)
+
+        if isinstance(result, dict) and "error" in result:
+            return jsonify(result), 400
+
+        return jsonify(result), 200
+
+    result = AlumnoService.get_all()
+    return jsonify(result), 200
 
 @alumno_bp.route('/<int:id>', methods=['GET'])
 @swag_from({
@@ -75,6 +121,11 @@ def get_alumno_by_id(id):
 @alumno_bp.route('/<int:id>', methods=['PUT'])
 @swag_from({
     'tags': ["Alumnos"],
+        'security': [
+        {
+            'BearerAuth': []
+        }
+    ],
     'consumes': ['application/json'],
     'parameters': [
         {
@@ -104,6 +155,7 @@ def get_alumno_by_id(id):
         404: {'description': 'Alumno no encontrado'}
     }
 })
+@jwt_required()
 def update_alumno(id):
     data = request.get_json()
 
@@ -121,6 +173,11 @@ def update_alumno(id):
 @alumno_bp.route('/<int:id>', methods=['DELETE'])
 @swag_from({
     'tags': ["Alumnos"],
+        'security': [
+        {
+            'BearerAuth': []
+        }
+    ],
     'parameters': [
         {
             'name': 'id',
@@ -134,6 +191,7 @@ def update_alumno(id):
         404: {'description': 'Alumno no encontrado'}
     }
 })
+@jwt_required()
 def delete_alumno(id):
     result = AlumnoService.delete(id)
 
@@ -143,40 +201,3 @@ def delete_alumno(id):
     return jsonify({"message": "Alumno eliminado correctamente"}), 200
 
 
-@alumno_bp.route('/rango', methods=['GET'])
-@swag_from({
-    'tags': ["Alumnos"],
-    'parameters': [
-        {
-            'name': 'fecha_inicio',
-            'in': 'query',
-            'type': 'string',
-            'required': True,
-            'example': '2026-03-25'
-        },
-        {
-            'name': 'fecha_fin',
-            'in': 'query',
-            'type': 'string',
-            'required': True,
-            'example': '2026-03-26'
-        }
-    ],
-    'responses': {
-        200: {'description': 'Alumnos filtrados por fecha'},
-        400: {'description': 'Error en fechas'}
-    }
-})
-def get_alumnos_by_fecha():
-    fecha_inicio = request.args.get('fecha_inicio')
-    fecha_fin = request.args.get('fecha_fin')
-
-    if not fecha_inicio or not fecha_fin:
-        return jsonify({"message": "Fechas requeridas"}), 400
-
-    result = AlumnoService.get_by_fecha_range(fecha_inicio, fecha_fin)
-
-    if isinstance(result, dict) and "error" in result:
-        return jsonify(result), 400
-
-    return jsonify(result), 200

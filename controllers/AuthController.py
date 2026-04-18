@@ -2,7 +2,7 @@ from services.authService import authService
 from flask import Blueprint, jsonify, request
 from flasgger import swag_from
 
-auth_bp = Blueprint('auth', __name__, url_prefix='/api/auth')
+auth_bp = Blueprint('auth', __name__)
 
 
 
@@ -88,12 +88,15 @@ def login():
     if not data:
         return jsonify({"message": "No se enviaron datos"}), 400
 
-    if not data.get("email") or not data.get("password"):
+    username = data.get('usuario') or data.get('email')
+    password = data.get('contraseña') or data.get('password')
+
+    if not username or not password:
         return jsonify({"message": "Faltan credenciales"}), 400
 
     result = authService.login(
-        data['email'],
-        data['password']
+        username,
+        password
     )
 
     if not result:
@@ -101,5 +104,6 @@ def login():
 
     return jsonify({
         "message": "Login exitoso",
-        "user": result
+        "access_token": result['access_token'],
+        "user": result['user']
     }), 200

@@ -1,5 +1,5 @@
 from entorno.extensions import db
-from werkzeug.security import generate_password_hash, check_password_hash
+import bcrypt
 
 class User(db.Model):
     __tablename__ = "users"
@@ -9,10 +9,11 @@ class User(db.Model):
     password = db.Column(db.String(255), nullable=False)
 
     def set_password(self, password):
-        self.password = generate_password_hash(password)
+        hashed = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+        self.password = hashed.decode('utf-8')
 
     def check_password(self, password):
-        return check_password_hash(self.password, password)
+        return bcrypt.checkpw(password.encode('utf-8'), self.password.encode('utf-8'))
 
     def to_dict(self):
         return {
